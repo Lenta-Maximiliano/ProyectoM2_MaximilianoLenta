@@ -25,3 +25,19 @@ export const getPostsByAuthorService = async (authorId) => {
 
   return result.rows;
 };
+
+export const createPostService = async ({
+  title,
+  content,
+  author_id,
+  published,
+}) => {
+  const result = await pool.query(
+    `INSERT INTO posts (title, content, author_id, published)
+     VALUES ($1, $2, $3, $4)
+     RETURNING *`,
+    [title, content, author_id, published]
+  );
+
+  return result.rows[0];
+};

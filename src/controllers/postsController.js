@@ -2,6 +2,7 @@ import {
   getAllPostsService,
   getPostByIdService,
   getPostsByAuthorService,
+  createPostService,
 } from "../services/postsService.js";
 
 export const getAllPosts = async (req, res) => {
@@ -49,6 +50,46 @@ export const getPostsByAuthor = async (req, res) => {
     res.status(200).json(posts);
   } catch (error) {
     console.error("Error al obtener publicaciones del autor:", error.message);
+
+    res.status(500).json({
+      error: "Error interno del servidor",
+    });
+  }
+};
+
+export const createPost = async (req, res) => {
+  try {
+    const { title, content, author_id, published } = req.body;
+
+    if (
+      typeof title !== "string" ||
+      !title.trim() ||
+      typeof content !== "string" ||
+      !content.trim() ||
+      author_id === undefined ||
+      author_id === null
+    ) {
+      return res.status(400).json({
+        error: "El título, el contenido y el ID del autor son obligatorios",
+      });
+    }
+
+    const post = await createPostService({
+      title,
+      content,
+      author_id,
+      published,
+    });
+
+    res.status(201).json(post);
+  } catch (error) {
+    console.error("Error al crear publicación:", error.message);
+
+    if (error.code === "23503") {
+      return res.status(400).json({
+        error: "El autor indicado no existe",
+      });
+    }
 
     res.status(500).json({
       error: "Error interno del servidor",
