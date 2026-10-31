@@ -23,3 +23,17 @@ export const createAuthorService = async ({ name, email, bio }) => {
 
   return result.rows[0];
 };
+
+export const updateAuthorService = async (id, { name, email, bio }) => {
+  const result = await pool.query(
+    `UPDATE authors
+     SET name = $1,
+         email = $2,
+         bio = $3
+     WHERE id = $4
+     RETURNING *`,
+    [name, email, bio, id]
+  );
+
+  return result.rows[0];
+};

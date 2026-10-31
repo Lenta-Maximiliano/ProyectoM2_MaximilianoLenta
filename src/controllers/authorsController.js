@@ -2,6 +2,7 @@ import {
   getAllAuthorsService,
   getAuthorByIdService,
   createAuthorService,
+  updateAuthorService,
 } from "../services/authorsService.js";
 
 export const getAllAuthors = async (req, res) => {
@@ -60,6 +61,50 @@ export const createAuthor = async (req, res) => {
     res.status(201).json(newAuthor);
   } catch (error) {
     console.error("Error al crear autor:", error.message);
+
+    if (error.code === "23505") {
+      return res.status(409).json({
+        error: "El email ya está registrado",
+      });
+    }
+
+    res.status(500).json({
+      error: "Error interno del servidor",
+    });
+  }
+};
+
+export const updateAuthor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, bio } = req.body;
+
+    if (
+      typeof name !== "string" ||
+      typeof email !== "string" ||
+      !name.trim() ||
+      !email.trim()
+    ) {
+      return res.status(400).json({
+        error: "El nombre y el email son obligatorios",
+      });
+    }
+
+    const updatedAuthor = await updateAuthorService(id, {
+      name,
+      email,
+      bio,
+    });
+
+    if (!updatedAuthor) {
+      return res.status(404).json({
+        error: "Autor no encontrado",
+      });
+    }
+
+    res.status(200).json(updatedAuthor);
+  } catch (error) {
+    console.error("Error al actualizar autor:", error.message);
 
     if (error.code === "23505") {
       return res.status(409).json({
