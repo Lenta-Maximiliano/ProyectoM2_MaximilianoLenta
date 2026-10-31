@@ -4,6 +4,7 @@ import {
   getPostsByAuthorService,
   createPostService,
   updatePostService,
+  deletePostService,
 } from "../services/postsService.js";
 
 export const getAllPosts = async (req, res) => {
@@ -139,6 +140,28 @@ export const updatePost = async (req, res) => {
         error: "El autor indicado no existe",
       });
     }
+
+    res.status(500).json({
+      error: "Error interno del servidor",
+    });
+  }
+};
+
+export const deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const post = await deletePostService(id);
+
+    if (!post) {
+      return res.status(404).json({
+        error: "Publicación no encontrada",
+      });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error al eliminar publicación:", error.message);
 
     res.status(500).json({
       error: "Error interno del servidor",

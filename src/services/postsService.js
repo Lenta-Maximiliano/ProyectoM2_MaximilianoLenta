@@ -59,3 +59,12 @@ export const updatePostService = async (
 
   return result.rows[0];
 };
+
+export const deletePostService = async (id) => {
+  const result = await pool.query(
+    "DELETE FROM posts WHERE id = $1 RETURNING *",
+    [id]
+  );
+
+  return result.rows[0];
+};
