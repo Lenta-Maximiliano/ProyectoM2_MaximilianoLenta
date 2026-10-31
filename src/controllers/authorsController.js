@@ -3,6 +3,7 @@ import {
   getAuthorByIdService,
   createAuthorService,
   updateAuthorService,
+  deleteAuthorService,
 } from "../services/authorsService.js";
 
 export const getAllAuthors = async (req, res) => {
@@ -111,6 +112,28 @@ export const updateAuthor = async (req, res) => {
         error: "El email ya está registrado",
       });
     }
+
+    res.status(500).json({
+      error: "Error interno del servidor",
+    });
+  }
+};
+
+export const deleteAuthor = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedAuthor = await deleteAuthorService(id);
+
+    if (!deletedAuthor) {
+      return res.status(404).json({
+        error: "Autor no encontrado",
+      });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error al eliminar autor:", error.message);
 
     res.status(500).json({
       error: "Error interno del servidor",

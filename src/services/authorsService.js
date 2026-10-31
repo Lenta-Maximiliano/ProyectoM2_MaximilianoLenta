@@ -37,3 +37,12 @@ export const updateAuthorService = async (id, { name, email, bio }) => {
 
   return result.rows[0];
 };
+
+export const deleteAuthorService = async (id) => {
+  const result = await pool.query(
+    "DELETE FROM authors WHERE id = $1 RETURNING *",
+    [id]
+  );
+
+  return result.rows[0];
+};
