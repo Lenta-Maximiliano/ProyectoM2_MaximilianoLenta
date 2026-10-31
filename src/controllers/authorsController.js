@@ -5,138 +5,114 @@ import {
   updateAuthorService,
   deleteAuthorService,
 } from "../services/authorsService.js";
+import { notFound, badRequest, conflict } from "../utils/error.js";
+import { validarNombre, validarEmail } from "../utils/validators.js";
 
-export const getAllAuthors = async (req, res) => {
+export const getAllAuthors = async (req, res, next) => {
   try {
     const authors = await getAllAuthorsService();
-
     res.status(200).json(authors);
   } catch (error) {
-    console.error("Error al obtener autores:", error.message);
-
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const getAuthorById = async (req, res) => {
+export const getAuthorById = async (req, res, next) => {
   try {
     const { id } = req.params;
-
     const author = await getAuthorByIdService(id);
 
     if (!author) {
-      return res.status(404).json({
-        error: "Autor no encontrado",
-      });
+      throw notFound("Autor no encontrado");
     }
 
     res.status(200).json(author);
   } catch (error) {
-    console.error("Error al obtener el autor:", error.message);
-
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const createAuthor = async (req, res) => {
+export const createAuthor = async (req, res, next) => {
   try {
     const { name, email, bio } = req.body;
 
-    if (
-      typeof name !== "string" ||
-      typeof email !== "string" ||
-      !name.trim() ||
-      !email.trim()
-    ) {
-      return res.status(400).json({
-        error: "El nombre y el email son obligatorios",
-      });
+    const errorNombre = validarNombre(name);
+
+    if (errorNombre) {
+      throw badRequest(errorNombre);
     }
 
-    const newAuthor = await createAuthorService({ name, email, bio });
+    const errorEmail = validarEmail(email);
+
+    if (errorEmail) {
+      throw badRequest(errorEmail);
+    }
+
+    const newAuthor = await createAuthorService({
+      name: name.trim(),
+      email: email.trim(),
+      bio,
+    });
 
     res.status(201).json(newAuthor);
   } catch (error) {
-    console.error("Error al crear autor:", error.message);
-
     if (error.code === "23505") {
-      return res.status(409).json({
-        error: "El email ya está registrado",
-      });
+      return next(conflict("El email ya está registrado"));
     }
 
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const updateAuthor = async (req, res) => {
+export const updateAuthor = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, email, bio } = req.body;
 
-    if (
-      typeof name !== "string" ||
-      typeof email !== "string" ||
-      !name.trim() ||
-      !email.trim()
-    ) {
-      return res.status(400).json({
-        error: "El nombre y el email son obligatorios",
-      });
+    const errorNombre = validarNombre(name);
+
+    if (errorNombre) {
+      throw badRequest(errorNombre);
+    }
+
+    const errorEmail = validarEmail(email);
+
+    if (errorEmail) {
+      throw badRequest(errorEmail);
     }
 
     const updatedAuthor = await updateAuthorService(id, {
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim(),
       bio,
     });
 
     if (!updatedAuthor) {
-      return res.status(404).json({
-        error: "Autor no encontrado",
-      });
+      throw notFound("Autor no encontrado");
     }
 
     res.status(200).json(updatedAuthor);
   } catch (error) {
-    console.error("Error al actualizar autor:", error.message);
-
     if (error.code === "23505") {
-      return res.status(409).json({
-        error: "El email ya está registrado",
-      });
+      return next(conflict("El email ya está registrado"));
     }
 
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const deleteAuthor = async (req, res) => {
+export const deleteAuthor = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const deletedAuthor = await deleteAuthorService(id);
 
     if (!deletedAuthor) {
-      return res.status(404).json({
-        error: "Autor no encontrado",
-      });
+      throw notFound("Autor no encontrado");
     }
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error al eliminar autor:", error.message);
-
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
