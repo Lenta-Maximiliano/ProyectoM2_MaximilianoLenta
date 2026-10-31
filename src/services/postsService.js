@@ -16,3 +16,12 @@ export const getPostByIdService = async (id) => {
 
   return result.rows[0];
 };
+
+export const getPostsByAuthorService = async (authorId) => {
+  const result = await pool.query(
+    "SELECT * FROM posts WHERE author_id = $1 ORDER BY id ASC",
+    [authorId]
+  );
+
+  return result.rows;
+};

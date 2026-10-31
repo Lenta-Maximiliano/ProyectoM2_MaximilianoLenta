@@ -1,6 +1,7 @@
 import {
   getAllPostsService,
   getPostByIdService,
+  getPostsByAuthorService,
 } from "../services/postsService.js";
 
 export const getAllPosts = async (req, res) => {
@@ -32,6 +33,22 @@ export const getPostById = async (req, res) => {
     res.status(200).json(post);
   } catch (error) {
     console.error("Error al obtener publicación:", error.message);
+
+    res.status(500).json({
+      error: "Error interno del servidor",
+    });
+  }
+};
+
+export const getPostsByAuthor = async (req, res) => {
+  try {
+    const { authorId } = req.params;
+
+    const posts = await getPostsByAuthorService(authorId);
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error al obtener publicaciones del autor:", error.message);
 
     res.status(500).json({
       error: "Error interno del servidor",
