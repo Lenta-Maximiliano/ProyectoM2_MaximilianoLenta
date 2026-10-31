@@ -11,3 +11,15 @@ export const getAuthorById = async (id) => {
 
   return result.rows[0];
 };
+
+
+export const createAuthor = async ({ name, email, bio }) => {
+  const result = await pool.query(
+    `INSERT INTO authors (name, email, bio)
+     VALUES ($1, $2, $3)
+     RETURNING *`,
+    [name, email, bio]
+  );
+
+  return result.rows[0];
+};
