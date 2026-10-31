@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import authorsRouter from "./routes/authors.routes.js";
+import authorsRouter from "./routes/authorsRouter.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;

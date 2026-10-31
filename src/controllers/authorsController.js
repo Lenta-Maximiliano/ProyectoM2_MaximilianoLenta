@@ -1,12 +1,12 @@
 import {
-  getAllAuthors,
-  getAuthorById,
-  createAuthor,
-} from "../services/authors.service.js";
+  getAllAuthorsService,
+  getAuthorByIdService,
+  createAuthorService,
+} from "../services/authorsService.js";
 
-export const getAuthors = async (req, res) => {
+export const getAllAuthors = async (req, res) => {
   try {
-    const authors = await getAllAuthors();
+    const authors = await getAllAuthorsService();
 
     res.status(200).json(authors);
   } catch (error) {
@@ -18,11 +18,11 @@ export const getAuthors = async (req, res) => {
   }
 };
 
-export const getAuthor = async (req, res) => {
+export const getAuthorById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const author = await getAuthorById(id);
+    const author = await getAuthorByIdService(id);
 
     if (!author) {
       return res.status(404).json({
@@ -40,7 +40,7 @@ export const getAuthor = async (req, res) => {
   }
 };
 
-export const createAuthorController = async (req, res) => {
+export const createAuthor = async (req, res) => {
   try {
     const { name, email, bio } = req.body;
 
@@ -55,7 +55,7 @@ export const createAuthorController = async (req, res) => {
       });
     }
 
-    const newAuthor = await createAuthor({ name, email, bio });
+    const newAuthor = await createAuthorService({ name, email, bio });
 
     res.status(201).json(newAuthor);
   } catch (error) {
