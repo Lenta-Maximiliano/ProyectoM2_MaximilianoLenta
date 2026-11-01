@@ -6,44 +6,40 @@ import {
   updatePostService,
   deletePostService,
 } from "../services/postsService.js";
+import { notFound, badRequest } from "../utils/error.js";
+import {
+  validarTitulo,
+  validarContenido,
+  validarAuthorId,
+} from "../utils/validators.js";
 
-export const getAllPosts = async (req, res) => {
+export const getAllPosts = async (req, res, next) => {
   try {
     const posts = await getAllPostsService();
 
     res.status(200).json(posts);
   } catch (error) {
-    console.error("Error al obtener publicaciones:", error.message);
-
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const getPostById = async (req, res) => {
+export const getPostById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const post = await getPostByIdService(id);
 
     if (!post) {
-      return res.status(404).json({
-        error: "Publicación no encontrada",
-      });
+      throw notFound("Publicación no encontrada");
     }
 
     res.status(200).json(post);
   } catch (error) {
-    console.error("Error al obtener publicación:", error.message);
-
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const getPostsByAuthor = async (req, res) => {
+export const getPostsByAuthor = async (req, res, next) => {
   try {
     const { authorId } = req.params;
 
@@ -51,120 +47,109 @@ export const getPostsByAuthor = async (req, res) => {
 
     res.status(200).json(posts);
   } catch (error) {
-    console.error("Error al obtener publicaciones del autor:", error.message);
-
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const createPost = async (req, res) => {
+export const createPost = async (req, res, next) => {
   try {
     const { title, content, author_id, published } = req.body;
 
-    if (
-      typeof title !== "string" ||
-      !title.trim() ||
-      typeof content !== "string" ||
-      !content.trim() ||
-      author_id === undefined ||
-      author_id === null
-    ) {
-      return res.status(400).json({
-        error: "El título, el contenido y el ID del autor son obligatorios",
-      });
+    const errorTitulo = validarTitulo(title);
+
+    if (errorTitulo) {
+      throw badRequest(errorTitulo);
+    }
+
+    const errorContenido = validarContenido(content);
+
+    if (errorContenido) {
+      throw badRequest(errorContenido);
+    }
+
+    const errorAuthorId = validarAuthorId(author_id);
+
+    if (errorAuthorId) {
+      throw badRequest(errorAuthorId);
     }
 
     const post = await createPostService({
-      title,
-      content,
+      title: title.trim(),
+      content: content.trim(),
       author_id,
       published,
     });
 
     res.status(201).json(post);
   } catch (error) {
-    console.error("Error al crear publicación:", error.message);
-
     if (error.code === "23503") {
-      return res.status(400).json({
-        error: "El autor indicado no existe",
-      });
+      return next(badRequest("El autor indicado no existe"));
     }
 
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const updatePost = async (req, res) => {
+export const updatePost = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { title, content, author_id, published } = req.body;
 
-    if (
-      typeof title !== "string" ||
-      !title.trim() ||
-      typeof content !== "string" ||
-      !content.trim() ||
-      author_id === undefined ||
-      author_id === null ||
-      typeof published !== "boolean"
-    ) {
-      return res.status(400).json({
-        error: "El título, el contenido, el ID del autor y el estado de publicación son obligatorios",
-      });
+    const errorTitulo = validarTitulo(title);
+
+    if (errorTitulo) {
+      throw badRequest(errorTitulo);
+    }
+
+    const errorContenido = validarContenido(content);
+
+    if (errorContenido) {
+      throw badRequest(errorContenido);
+    }
+
+    const errorAuthorId = validarAuthorId(author_id);
+
+    if (errorAuthorId) {
+      throw badRequest(errorAuthorId);
+    }
+
+    if (typeof published !== "boolean") {
+      throw badRequest("El estado de publicación debe ser verdadero o falso");
     }
 
     const post = await updatePostService(id, {
-      title,
-      content,
+      title: title.trim(),
+      content: content.trim(),
       author_id,
       published,
     });
 
     if (!post) {
-      return res.status(404).json({
-        error: "Publicación no encontrada",
-      });
+      throw notFound("Publicación no encontrada");
     }
 
     res.status(200).json(post);
   } catch (error) {
-    console.error("Error al actualizar publicación:", error.message);
-
     if (error.code === "23503") {
-      return res.status(400).json({
-        error: "El autor indicado no existe",
-      });
+      return next(badRequest("El autor indicado no existe"));
     }
 
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
 
-export const deletePost = async (req, res) => {
+export const deletePost = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const post = await deletePostService(id);
 
     if (!post) {
-      return res.status(404).json({
-        error: "Publicación no encontrada",
-      });
+      throw notFound("Publicación no encontrada");
     }
 
     res.status(204).send();
   } catch (error) {
-    console.error("Error al eliminar publicación:", error.message);
-
-    res.status(500).json({
-      error: "Error interno del servidor",
-    });
+    next(error);
   }
 };
