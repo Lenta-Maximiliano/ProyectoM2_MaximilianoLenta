@@ -35,7 +35,7 @@ describe("GET /posts/:id - errores", () => {
 });
 
 describe("GET /posts/author/:authorId", () => {
-  test("devuelve las publicaciones de un autor", async () => {
+  test("devuelve las publicaciones de un autor con sus datos", async () => {
     const postsResponse = await request(app).get("/posts");
 
     const authorId = postsResponse.body[0].author_id;
@@ -47,6 +47,9 @@ describe("GET /posts/author/:authorId", () => {
 
     response.body.forEach((post) => {
       expect(post.author_id).toBe(authorId);
+      expect(post.author_name).toBeDefined();
+      expect(post.author_email).toBeDefined();
+      expect(post.author_bio).toBeDefined();
     });
   });
 });
