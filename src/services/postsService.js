@@ -19,7 +19,16 @@ export const getPostByIdService = async (id) => {
 
 export const getPostsByAuthorService = async (authorId) => {
   const result = await pool.query(
-    "SELECT * FROM posts WHERE author_id = $1 ORDER BY id ASC",
+    `SELECT
+       posts.*,
+       authors.id AS author_id,
+       authors.name AS author_name,
+       authors.email AS author_email,
+       authors.bio AS author_bio
+     FROM posts
+     INNER JOIN authors ON posts.author_id = authors.id
+     WHERE posts.author_id = $1
+     ORDER BY posts.id ASC`,
     [authorId]
   );
 
