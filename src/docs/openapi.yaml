@@ -1,0 +1,381 @@
+openapi: 3.1.1
+
+info:
+  title: MiniBlog API
+  version: 1.0.0
+  description: API REST para gestionar autores y publicaciones de un blog.
+
+servers:
+  - url: http://localhost:3000
+    description: Servidor local de desarrollo
+
+paths:
+  /authors:
+    get:
+      summary: Obtener todos los autores
+      description: Devuelve la lista de todos los autores ordenados por ID.
+      tags:
+        - Autores
+      responses:
+        '200':
+          description: Lista de autores obtenida correctamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+        '500':
+          description: Error interno del servidor.
+
+    post:
+      summary: Crear un autor
+      description: Registra un nuevo autor en la base de datos.
+      tags:
+        - Autores
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                  example: Juan Pérez
+                email:
+                  type: string
+                  format: email
+                  example: juan@example.com
+                bio:
+                  type: string
+                  example: Desarrollador web.
+      responses:
+        '201':
+          description: Autor creado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          description: Datos inválidos.
+        '409':
+          description: El email ya está registrado.
+        '500':
+          description: Error interno del servidor.
+
+  /authors/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID del autor que se desea consultar.
+        schema:
+          type: integer
+    get:
+      summary: Obtener un autor por ID
+      description: Devuelve los datos de un autor específico.
+      tags:
+        - Autores
+      responses:
+        '200':
+          description: Autor encontrado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '404':
+          description: Autor no encontrado.
+        '500':
+          description: Error interno del servidor.
+
+    put:
+      summary: Actualizar un autor
+      description: Actualiza los datos de un autor existente.
+      tags:
+        - Autores
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                  example: Juan Pérez
+                email:
+                  type: string
+                  format: email
+                  example: juan@example.com
+                bio:
+                  type: string
+                  example: Desarrollador full-stack.
+      responses:
+        '200':
+          description: Autor actualizado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          description: Datos inválidos.
+        '404':
+          description: Autor no encontrado.
+        '409':
+          description: El email ya está registrado.
+        '500':
+          description: Error interno del servidor.
+
+    delete:
+      summary: Eliminar un autor
+      description: Elimina un autor y sus publicaciones asociadas.
+      tags:
+        - Autores
+      responses:
+        '204':
+          description: Autor eliminado correctamente.
+        '404':
+          description: Autor no encontrado.
+        '500':
+          description: Error interno del servidor.
+
+  /posts:
+    get:
+      summary: Obtener todas las publicaciones
+      description: Devuelve la lista de publicaciones ordenadas por ID.
+      tags:
+        - Publicaciones
+      responses:
+        '200':
+          description: Lista de publicaciones obtenida correctamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '500':
+          description: Error interno del servidor.
+
+    post:
+      summary: Crear una publicación
+      description: Registra una nueva publicación en la base de datos.
+      tags:
+        - Publicaciones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - author_id
+              properties:
+                title:
+                  type: string
+                  example: Introducción a Node.js
+                content:
+                  type: string
+                  example: Node.js es un entorno de ejecución de JavaScript.
+                author_id:
+                  type: integer
+                  example: 1
+                published:
+                  type: boolean
+                  example: false
+      responses:
+        '201':
+          description: Publicación creada correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Datos inválidos o el autor indicado no existe.
+        '500':
+          description: Error interno del servidor.
+
+  /posts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID de la publicación que se desea consultar.
+        schema:
+          type: integer
+    get:
+      summary: Obtener una publicación por ID
+      description: Devuelve los datos de una publicación específica.
+      tags:
+        - Publicaciones
+      responses:
+        '200':
+          description: Publicación encontrada correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Publicación no encontrada.
+        '500':
+          description: Error interno del servidor.
+
+    put:
+      summary: Actualizar una publicación
+      description: Actualiza los datos de una publicación existente.
+      tags:
+        - Publicaciones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+                - author_id
+                - published
+              properties:
+                title:
+                  type: string
+                  example: Introducción a Node.js
+                content:
+                  type: string
+                  example: Node.js permite ejecutar JavaScript fuera del navegador.
+                author_id:
+                  type: integer
+                  example: 1
+                published:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Publicación actualizada correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Datos inválidos o el autor indicado no existe.
+        '404':
+          description: Publicación no encontrada.
+        '500':
+          description: Error interno del servidor.
+
+    delete:
+      summary: Eliminar una publicación
+      description: Elimina una publicación de la base de datos.
+      tags:
+        - Publicaciones
+      responses:
+        '204':
+          description: Publicación eliminada correctamente.
+        '404':
+          description: Publicación no encontrada.
+        '500':
+          description: Error interno del servidor.
+
+  /posts/author/{authorId}:
+    parameters:
+      - name: authorId
+        in: path
+        required: true
+        description: ID del autor cuyas publicaciones se desean consultar.
+        schema:
+          type: integer
+    get:
+      summary: Obtener publicaciones por autor
+      description: Devuelve todas las publicaciones asociadas a un autor.
+      tags:
+        - Publicaciones
+      responses:
+        '200':
+          description: Lista de publicaciones obtenida correctamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '500':
+          description: Error interno del servidor.
+
+components:
+  schemas:
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Ana García
+        email:
+          type: string
+          format: email
+          example: ana@example.com
+        bio:
+          type: [string, "null"]
+          example: Desarrolladora full-stack.
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-10-25T12:00:00Z"
+      required:
+        - id
+        - name
+        - email
+        - created_at
+
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Introducción a Node.js
+        content:
+          type: string
+          example: Node.js es un entorno de ejecución de JavaScript.
+        author_id:
+          type: integer
+          example: 1
+        published:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-10-25T12:00:00Z"
+      required:
+        - id
+        - title
+        - content
+        - author_id
+        - created_at
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Autor no encontrado
+        status:
+          type: integer
+          example: 404
+      required:
+        - error
+        - status
