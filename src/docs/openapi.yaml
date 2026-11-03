@@ -4,10 +4,15 @@ info:
   title: MiniBlog API
   version: 1.0.0
   description: API REST para gestionar autores y publicaciones de un blog.
+  contact:
+    name: Maximiliano Lenta
+    email: maximiliano.lenta.dev@gmail.com
 
 servers:
   - url: http://localhost:3000
     description: Servidor local de desarrollo
+  - url: https://proyectom2-maximilianolenta.onrender.com/
+    description: Producción (Render)
 
 paths:
   /authors:
